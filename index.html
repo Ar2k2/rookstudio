@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rook Studio</title>
+<meta name="description" content="Rook Studio: small, handmade sites and tools.">
+<link rel="canonical" href="https://rookstudio.net/">
+<link rel="icon" href="https://rooks.rookstudio.net/shared/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as rooks.rookstudio.net (site/shared/shell.css), fixed values for the current seed. */
+  :root {
+    --accent: #ab4500; --bg: #f7f2f0; --panel: #fffdfc; --border: #e4dedb;
+    --text: #1b1b1f; --muted: #5f5d66;
+    --shadow: 0 1px 2px rgb(30 25 15 / .06), 0 8px 24px -8px rgb(30 25 15 / .12);
+    --shadow-hi: 0 2px 4px rgb(30 25 15 / .06), 0 18px 36px -12px rgb(30 25 15 / .22);
+    --spring: cubic-bezier(.34, 1.56, .64, 1);
+    --enter: cubic-bezier(.22, 1, .36, 1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --accent: #ff9965; --bg: #150f0c; --panel: #1f1814; --border: #2f2621;
+      --text: #f2edeb; --muted: #b3aaa5;
+      --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px -8px rgb(0 0 0 / .5);
+      --shadow-hi: 0 2px 4px rgb(0 0 0 / .4), 0 18px 40px -12px rgb(0 0 0 / .7); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 48px 16px;
+    background: var(--bg); color: var(--text); font: 16px/1.55 'IBM Plex Sans', system-ui, sans-serif; }
+  main { width: 100%; max-width: 560px; animation: in .7s var(--enter) both; }
+  @keyframes in { from { opacity: 0; transform: translateY(12px); } }
+  .logo { width: 72px; height: auto; display: block; margin-bottom: 20px; }
+  .logo .t { fill: var(--text); } .logo .a { fill: var(--accent); } .logo .s { stroke: var(--accent); } .logo .b { stroke: var(--bg); }
+  .crane { animation: carry 4s ease-in-out infinite; }
+  @keyframes carry { 0%, 100% { transform: translateX(0); } 45%, 55% { transform: translateX(-90px); } }
+  h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 8px; letter-spacing: -.02em; }
+  p.lede { color: var(--muted); margin: 0 0 32px; }
+  .label { font: 500 13px 'IBM Plex Mono', monospace; color: var(--muted); margin: 0 0 10px; }
+  a.card { display: flex; align-items: center; gap: 16px; padding: 18px 20px; text-decoration: none; color: inherit;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
+    transition: transform .25s var(--spring), box-shadow .25s; }
+  a.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hi); }
+  a.card:active { transform: scale(.97); transition-duration: .12s; }
+  a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .card b { display: block; font-size: 1.1rem; }
+  .card span { color: var(--muted); font-size: .95rem; }
+  .card .url { font: 13px 'IBM Plex Mono', monospace; color: var(--accent); }
+  .card .arrow { margin-left: auto; font-size: 1.3rem; color: var(--accent); transition: transform .25s var(--spring); }
+  a.card:hover .arrow { transform: translateX(4px); }
+  .soon { margin-top: 12px; padding: 18px 20px; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted);
+    font: 13px 'IBM Plex Mono', monospace; }
+  footer { margin-top: 40px; font: 13px 'IBM Plex Mono', monospace; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <svg class="logo" viewBox="18 0 234 226" aria-hidden="true">
+    <g class="t"><path d="M30 40H58V58H70V40H100V58H112V40H140V86H30Z"/><path d="M44 92H126L132 192H38Z"/><rect x="24" y="198" width="122" height="22"/></g>
+    <g class="s" fill="none" stroke-linecap="square">
+      <path d="M126 40V12" stroke-width="6"/><path d="M104 12H246M126 30H246" stroke-width="5"/>
+      <path d="M126 30L140 12L154 30L168 12L182 30L196 12L210 30L224 12L238 30L246 12" stroke-width="3.5"/>
+    </g>
+    <rect class="a" x="100" y="6" width="14" height="16"/>
+    <g class="crane">
+      <path class="s" d="M228 30V124" stroke-width="3"/>
+      <rect class="a" x="220" y="122" width="16" height="7"/>
+      <rect class="a" x="210" y="132" width="36" height="36"/><rect class="b" x="218" y="140" width="20" height="20" fill="none" stroke-width="3"/>
+    </g>
+  </svg>
+  <h1>Rook Studio</h1>
+  <p class="lede">Small, handmade sites and tools.</p>
+
+  <p class="label">projects</p>
+  <a class="card" href="https://rooks.rookstudio.net">
+    <div>
+      <b>R00K’s</b>
+      <span>Minecraft Java tools: block gradients, seeds, building helpers.</span><br>
+      <span class="url">rooks.rookstudio.net</span>
+    </div>
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+  <div class="soon">more soon</div>
+
+  <footer>rookstudio.net</footer>
+</main>
+</body>
+</html>
