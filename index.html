@@ -4,87 +4,210 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rook Studio</title>
-<meta name="description" content="Rook Studio: small, handmade sites and tools.">
+<meta name="description" content="Rook Studio: small, free sites and tools.">
 <link rel="canonical" href="https://rookstudio.net/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rookstudio.net/">
+<meta property="og:title" content="Rook Studio">
+<meta property="og:description" content="Small, free sites and tools.">
 <link rel="icon" href="https://rooks.rookstudio.net/shared/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* Same tokens as rooks.rookstudio.net (site/shared/shell.css), fixed values for the current seed. */
+  /* Same tokens as rooks.rookstudio.net (site/shared/shell.css), fixed values for the current seed (#c75b17). */
   :root {
-    --accent: #ab4500; --bg: #f7f2f0; --panel: #fffdfc; --border: #e4dedb;
-    --text: #1b1b1f; --muted: #5f5d66;
+    --accent: #ab4500; --bg: #f7f2f0; --panel: #fffdfc; --border: #e8e1dd; --text: #1b1b1f; --muted: #5f5d66;
+    --glow: rgb(199 91 23 / .16); --dot: rgb(120 70 40 / .16);
     --shadow: 0 1px 2px rgb(30 25 15 / .06), 0 8px 24px -8px rgb(30 25 15 / .12);
-    --shadow-hi: 0 2px 4px rgb(30 25 15 / .06), 0 18px 36px -12px rgb(30 25 15 / .22);
+    --shadow-hi: 0 2px 4px rgb(30 25 15 / .06), 0 22px 44px -14px rgb(30 25 15 / .26);
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
     --spring: cubic-bezier(.34, 1.56, .64, 1);
     --enter: cubic-bezier(.22, 1, .36, 1);
     color-scheme: light dark;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --accent: #ff9965; --bg: #150f0c; --panel: #1f1814; --border: #2f2621;
-      --text: #f2edeb; --muted: #b3aaa5;
+    :root { --accent: #ff9965; --bg: #150f0c; --panel: #1f1814; --border: #2f2621; --text: #f2edeb; --muted: #b3aaa5;
+      --glow: rgb(255 140 80 / .13); --dot: rgb(255 210 190 / .09);
       --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px -8px rgb(0 0 0 / .5);
-      --shadow-hi: 0 2px 4px rgb(0 0 0 / .4), 0 18px 40px -12px rgb(0 0 0 / .7); }
+      --shadow-hi: 0 2px 4px rgb(0 0 0 / .4), 0 22px 48px -14px rgb(0 0 0 / .75); }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 48px 16px;
-    background: var(--bg); color: var(--text); font: 16px/1.55 'IBM Plex Sans', system-ui, sans-serif; }
-  main { width: 100%; max-width: 560px; animation: in .7s var(--enter) both; }
+  html { background: var(--bg); }
+  body { margin: 0; min-height: 100vh; color: var(--text); background: var(--bg);
+    font: 16px/1.55 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+  /* Backdrop: a faint dot grid (a build plate) under a warm glow, fading out down the page. */
+  body::before, body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+  body::before { background: radial-gradient(var(--dot) 1.2px, transparent 1.4px) 0 0 / 22px 22px;
+    mask: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%); }
+  body::after { background: radial-gradient(ellipse 60% 45% at 50% -5%, var(--glow), transparent 70%); }
+
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+  .in { animation: in .7s var(--enter) both; animation-delay: calc(var(--i, 0) * 80ms); }
   @keyframes in { from { opacity: 0; transform: translateY(12px); } }
-  .logo { width: 72px; height: auto; display: block; margin-bottom: 20px; }
-  .logo .t { fill: var(--text); } .logo .a { fill: var(--accent); } .logo .s { stroke: var(--accent); } .logo .b { stroke: var(--bg); }
-  .crane { animation: carry 4s ease-in-out infinite; }
-  @keyframes carry { 0%, 100% { transform: translateX(0); } 45%, 55% { transform: translateX(-90px); } }
-  h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 8px; letter-spacing: -.02em; }
-  p.lede { color: var(--muted); margin: 0 0 32px; }
-  .label { font: 500 13px 'IBM Plex Mono', monospace; color: var(--muted); margin: 0 0 10px; }
-  a.card { display: flex; align-items: center; gap: 16px; padding: 18px 20px; text-decoration: none; color: inherit;
+
+  /* Top bar */
+  nav { display: flex; align-items: center; gap: 10px; padding: 22px 0; }
+  nav .mark { width: 30px; height: auto; color: var(--text); }
+  nav b { font-weight: 700; letter-spacing: -.01em; }
+  nav .dom { margin-left: auto; font: 13px var(--mono); color: var(--muted); }
+
+  /* Hero */
+  header.hero { padding: 72px 0 56px; text-align: center; }
+  .hero .logo { width: 156px; height: auto; color: var(--text); overflow: visible; margin: 0 auto 28px; display: block;
+    filter: drop-shadow(0 18px 24px var(--glow)); }
+  .hero .logo:hover { animation: wobble .5s var(--spring); }
+  @keyframes wobble { 30% { transform: rotate(-3deg) scale(1.03); } 65% { transform: rotate(2deg); } }
+  h1 { font-size: clamp(2.6rem, 9vw, 4.2rem); line-height: 1; letter-spacing: -.035em; margin: 0 0 16px; font-weight: 700; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lede { color: var(--muted); font-size: 1.15rem; margin: 0 auto; max-width: 30ch; }
+
+  /* Crane rook logo, same animation as R00K's: lift, carry in along the jib, set down, back out. */
+  .trolley, .hook, .cable { animation: 6s ease-in-out infinite; }
+  .trolley { animation-name: crane-x; }
+  .hook { animation-name: crane-y; }
+  .cable { animation-name: crane-cable; transform-box: fill-box; transform-origin: top; }
+  @keyframes crane-x { 0%, 15% { transform: none; } 35%, 72% { transform: translateX(-48px); } 88%, 100% { transform: none; } }
+  @keyframes crane-y { 0%, 50%, 60%, 100% { transform: none; } 15%, 35%, 72%, 88% { transform: translateY(-40px); } }
+  @keyframes crane-cable { 0%, 50%, 60%, 100% { transform: none; } 15%, 35%, 72%, 88% { transform: scaleY(.574); } }
+
+  /* Projects */
+  .label { display: flex; align-items: center; gap: 12px; font: 500 13px var(--mono); color: var(--muted); margin: 0 0 14px 4px; }
+  .label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  a.card { position: relative; display: block; overflow: hidden; text-decoration: none; color: inherit;
     background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow);
-    transition: transform .25s var(--spring), box-shadow .25s; }
-  a.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hi); }
-  a.card:active { transform: scale(.97); transition-duration: .12s; }
+    transition: transform .3s var(--spring), box-shadow .3s; }
+  /* Spotlight that follows the pointer (--x/--y set by the script). */
+  a.card::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+    background: radial-gradient(420px circle at var(--x, 50%) var(--y, 0%), var(--glow), transparent 60%); }
+  a.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hi); }
+  a.card:hover::before { opacity: 1; }
+  a.card:active { transform: scale(.98); transition-duration: .12s; }
   a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  .card b { display: block; font-size: 1.1rem; }
-  .card span { color: var(--muted); font-size: .95rem; }
-  .card .url { font: 13px 'IBM Plex Mono', monospace; color: var(--accent); }
-  .card .arrow { margin-left: auto; font-size: 1.3rem; color: var(--accent); transition: transform .25s var(--spring); }
-  a.card:hover .arrow { transform: translateX(4px); }
-  .soon { margin-top: 12px; padding: 18px 20px; border: 1px dashed var(--border); border-radius: 16px; color: var(--muted);
-    font: 13px 'IBM Plex Mono', monospace; }
-  footer { margin-top: 40px; font: 13px 'IBM Plex Mono', monospace; color: var(--muted); }
+
+  .strip { display: flex; height: 12px; }
+  .strip i { flex: 1; background: var(--b); box-shadow: 1px 0 0 var(--b); transform-origin: top;
+    animation: drop .5s var(--spring) both; animation-delay: calc(500ms + var(--k) * 45ms); }
+  @keyframes drop { from { transform: scaleY(0); } }
+
+  .body { position: relative; padding: 22px 24px 24px; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; font: 500 13px var(--mono); color: var(--muted); }
+  .pill { display: inline-flex; align-items: center; gap: 7px; padding: 2px 10px 2px 9px; border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--text); }
+  .pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #2fa55a; box-shadow: 0 0 0 0 rgb(47 165 90 / .5);
+    animation: ping 2.4s ease-out infinite; }
+  @keyframes ping { 70%, 100% { box-shadow: 0 0 0 7px rgb(47 165 90 / 0); } }
+  .meta .url { margin-left: auto; color: var(--accent); }
+
+  .title { display: flex; align-items: center; gap: 14px; margin: 16px 0 8px; }
+  .title h2 { margin: 0; font-size: 1.9rem; letter-spacing: -.02em; line-height: 1.1; }
+  .title h2 b { font-family: var(--mono); color: var(--accent); }
+  .title .arrow { margin-left: auto; display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 12px;
+    background: var(--text); color: var(--bg); transition: transform .3s var(--spring); }
+  a.card:hover .arrow { transform: translateX(3px) rotate(-8deg); }
+  .desc { margin: 0; color: var(--muted); max-width: 46ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chips span { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 10px; border-radius: 10px;
+    background: color-mix(in srgb, var(--text) 5%, transparent); font-size: .9rem; font-weight: 500;
+    transition: transform .25s var(--spring); }
+  .chips svg { width: 18px; height: 18px; color: var(--accent); }
+  a.card:hover .chips span { transform: translateY(-2px); }
+  a.card:hover .chips span:nth-child(2) { transition-delay: 30ms; }
+  a.card:hover .chips span:nth-child(3) { transition-delay: 60ms; }
+  a.card:hover .chips span:nth-child(4) { transition-delay: 90ms; }
+
+  .next { display: flex; align-items: center; gap: 16px; margin-top: 14px; padding: 20px 24px; border-radius: 16px;
+    border: 1.5px dashed var(--border); color: var(--muted); }
+  .next .slot { width: 40px; height: 40px; flex: none; border-radius: 10px; border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+    animation: bob 3s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-4px); } }
+  .next b { display: block; color: var(--text); font-weight: 600; }
+  .next span { font: 13px var(--mono); }
+
+  footer { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; margin: 64px 0 40px; padding-top: 20px;
+    border-top: 1px solid var(--border); font: 13px var(--mono); color: var(--muted); }
+
+  @media (max-width: 520px) {
+    header.hero { padding: 40px 0 40px; }
+    .hero .logo { width: 120px; }
+    .meta .url { margin-left: 0; width: 100%; }
+    .title h2 { font-size: 1.6rem; }
+  }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<main>
-  <svg class="logo" viewBox="18 0 234 226" aria-hidden="true">
-    <g class="t"><path d="M30 40H58V58H70V40H100V58H112V40H140V86H30Z"/><path d="M44 92H126L132 192H38Z"/><rect x="24" y="198" width="122" height="22"/></g>
-    <g class="s" fill="none" stroke-linecap="square">
-      <path d="M126 40V12" stroke-width="6"/><path d="M104 12H246M126 30H246" stroke-width="5"/>
-      <path d="M126 30L140 12L154 30L168 12L182 30L196 12L210 30L224 12L238 30L246 12" stroke-width="3.5"/>
-    </g>
-    <rect class="a" x="100" y="6" width="14" height="16"/>
-    <g class="crane">
-      <path class="s" d="M228 30V124" stroke-width="3"/>
-      <rect class="a" x="220" y="122" width="16" height="7"/>
-      <rect class="a" x="210" y="132" width="36" height="36"/><rect class="b" x="218" y="140" width="20" height="20" fill="none" stroke-width="3"/>
-    </g>
-  </svg>
-  <h1>Rook Studio</h1>
-  <p class="lede">Small, handmade sites and tools.</p>
+<div class="wrap">
+  <nav class="in">
+    <svg class="mark" viewBox="0 0 260 230" aria-hidden="true"><use href="#rook"/></svg>
+    <b>Rook Studio</b>
+    <span class="dom">rookstudio.net</span>
+  </nav>
 
-  <p class="label">projects</p>
-  <a class="card" href="https://rooks.rookstudio.net">
-    <div>
-      <b>R00K’s</b>
-      <span>Minecraft Java tools: block gradients, seeds, building helpers.</span><br>
-      <span class="url">rooks.rookstudio.net</span>
+  <header class="hero">
+    <!-- Crane rook logo (same drawing as R00K's shell.js). -->
+    <svg class="logo in" style="--i:1" viewBox="0 0 260 230" role="img" aria-label="Rook Studio logo">
+      <defs><g id="rook">
+        <g fill="currentColor"><path d="M30 40H58V58H70V40H100V58H112V40H140V86H30Z"/><path d="M44 92H126L132 192H38Z"/><rect x="24" y="198" width="122" height="22"/></g>
+        <g fill="none" stroke="var(--accent)" stroke-linecap="square">
+          <path d="M126 40V12" stroke-width="6"/><path d="M104 12H246M126 30H246" stroke-width="5"/>
+          <path d="M126 30L140 12L154 30L168 12L182 30L196 12L210 30L224 12L238 30L246 12" stroke-width="3.5"/>
+        </g>
+        <rect x="100" y="6" width="14" height="16" fill="var(--accent)"/>
+      </g></defs>
+      <use href="#rook"/>
+      <g class="trolley"><path class="cable" d="M228 30V124" stroke="var(--accent)" stroke-width="3"/>
+        <g class="hook"><rect x="220" y="122" width="16" height="7" fill="var(--accent)"/>
+        <rect x="210" y="132" width="36" height="36" fill="var(--accent)"/><rect x="218" y="140" width="20" height="20" fill="none" stroke="var(--bg)" stroke-width="3"/></g></g>
+    </svg>
+    <h1 class="in" style="--i:2">Rook <em>Studio</em></h1>
+    <p class="lede in" style="--i:3">Small, free sites and tools.</p>
+  </header>
+
+  <main>
+    <p class="label in" style="--i:5">projects</p>
+    <a class="card in" style="--i:6" href="https://rooks.rookstudio.net/">
+      <div class="strip" id="strip" aria-hidden="true"></div>
+      <div class="body">
+        <div class="meta"><span class="pill">live</span><span>minecraft java 26.x</span><span class="url">rooks.rookstudio.net</span></div>
+        <div class="title">
+          <h2><b>R00K</b>’s</h2>
+          <span class="arrow" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+        <p class="desc">Minecraft tools: block gradients and palettes, banner and firework designers, seed tools, building helpers.</p>
+        <div class="chips" aria-hidden="true">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="3" width="6" height="18" rx="1.5"/><rect x="9" y="3" width="6" height="18" rx="1.5"/><rect x="15" y="3" width="6" height="18" rx="1.5"/></svg>Color &amp; art</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg>World</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg>Build</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>Mechanics</span>
+        </div>
+      </div>
+    </a>
+
+    <div class="next in" style="--i:7">
+      <span class="slot" aria-hidden="true"></span>
+      <div><b>Next project</b><span>in the works</span></div>
     </div>
-    <span class="arrow" aria-hidden="true">→</span>
-  </a>
-  <div class="soon">more soon</div>
+  </main>
 
-  <footer>rookstudio.net</footer>
-</main>
+  <footer class="in" style="--i:8"><span>© 2026 Rook Studio</span><span>rookstudio.net</span></footer>
+</div>
+
+<script>
+  // Color strip: the same block colors as R00K's featured card (yellow, red, orange poplar leaves), blended in 16 steps.
+  const c = ['#e08e2b', '#a42e26', '#c75b17'], n = c.length - 1;
+  document.getElementById('strip').innerHTML = Array.from({ length: 16 }, (_, k) => {
+    const t = k / 15 * n, i = Math.min(n - 1, Math.floor(t)), f = Math.round((t - i) * 100);
+    return `<i style="--b:color-mix(in oklab, ${c[i]} ${100 - f}%, ${c[i + 1]});--k:${k}"></i>`;
+  }).join('');
+  // Card spotlight follows the pointer.
+  for (const a of document.querySelectorAll('a.card')) a.addEventListener('pointermove', e => {
+    const r = a.getBoundingClientRect();
+    a.style.setProperty('--x', e.clientX - r.left + 'px');
+    a.style.setProperty('--y', e.clientY - r.top + 'px');
+  });
+</script>
 </body>
 </html>
